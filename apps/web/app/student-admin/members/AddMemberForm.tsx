@@ -1,5 +1,7 @@
 'use client'
 import { useState } from 'react'
+import { inputStyle, buttonStyle } from './styles'
+
 export default function AddMembers() {
   const [fullName, setFullName] = useState('')
   const [userName, setUserName] = useState('')
@@ -17,24 +19,24 @@ export default function AddMembers() {
         placeholder="FullName"
         value={fullName}
         onChange={(e) => setFullName(e.target.value)}
-        className="border border-gray-300 rounded px-3 py-2"
+        className={inputStyle}
       />
 
       <input
         placeholder="UserName"
         value={userName}
         onChange={(e) => setUserName(e.target.value)}
-        className="border border-gray-300 rounded px-3 py-2"
+        className={inputStyle}
       />
 
       <input
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="border border-gray-300 rounded px-3 py-2"
+        className={inputStyle}
       />
 
-      <button type="submit" className="bg-green-600 text-white rounded px-4 py-2 self-start">
+      <button type="submit" className={buttonStyle}>
         Add Member
       </button>
     </form>

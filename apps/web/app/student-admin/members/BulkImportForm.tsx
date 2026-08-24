@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Upload } from 'lucide-react'
+import { cellStyle, buttonStyle } from './styles'
 
 type MemberRow = {
   name: string
@@ -62,26 +63,23 @@ export default function BulkImportForm() {
       <table className="border-collapse border border-gray-300">
         <thead>
           <tr>
-            <th className="border border-gray-300 px-3 py-2">Name</th>
-            <th className="border border-gray-300 px-3 py-2">Username</th>
-            <th className="border border-gray-300 px-3 py-2">Email</th>
+            <th className={cellStyle}>Name</th>
+            <th className={cellStyle}>Username</th>
+            <th className={cellStyle}>Email</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row, index) => (
             <tr key={index}>
-              <td className="border border-gray-300 px-3 py-2">{row.name}</td>
-              <td className="border border-gray-300 px-3 py-2">{row.username}</td>
-              <td className="border border-gray-300 px-3 py-2">{row.email}</td>
+              <td className={cellStyle}>{row.name}</td>
+              <td className={cellStyle}>{row.username}</td>
+              <td className={cellStyle}>{row.email}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <button
-        onClick={handleImport}
-        className="bg-green-600 text-white rounded px-4 py-2 self-start"
-      >
+      <button onClick={handleImport} className={buttonStyle}>
         Import Members
       </button>
     </div>

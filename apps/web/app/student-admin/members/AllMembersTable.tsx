@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
+import { cellStyle, buttonStyle } from './styles'
 
 type Member = {
   id: number
@@ -61,29 +62,29 @@ export default function AllMembersTable() {
       <table className="border-collapse border border-gray-300">
         <thead>
           <tr>
-            <th className="border border-gray-300 px-3 py-2"></th>
-            <th className="border border-gray-300 px-3 py-2">Name</th>
-            <th className="border border-gray-300 px-3 py-2">Username</th>
-            <th className="border border-gray-300 px-3 py-2">Email</th>
-            <th className="border border-gray-300 px-3 py-2">Joined Date</th>
-            <th className="border border-gray-300 px-3 py-2"></th>
+            <th className={cellStyle}></th>
+            <th className={cellStyle}>Name</th>
+            <th className={cellStyle}>Username</th>
+            <th className={cellStyle}>Email</th>
+            <th className={cellStyle}>Joined Date</th>
+            <th className={cellStyle}></th>
           </tr>
         </thead>
         <tbody>
           {members.map((member) => (
             <tr key={member.id}>
-              <td className="border border-gray-300 px-3 py-2">
+              <td className={cellStyle}>
                 <input
                   type="checkbox"
                   checked={selectedIds.includes(member.id)}
                   onChange={() => toggle(member.id)}
                 />
               </td>
-              <td className="border border-gray-300 px-3 py-2">{member.name}</td>
-              <td className="border border-gray-300 px-3 py-2">{member.username}</td>
-              <td className="border border-gray-300 px-3 py-2">{member.email}</td>
-              <td className="border border-gray-300 px-3 py-2">{member.joinedDate}</td>
-              <td className="border border-gray-300 px-3 py-2">
+              <td className={cellStyle}>{member.name}</td>
+              <td className={cellStyle}>{member.username}</td>
+              <td className={cellStyle}>{member.email}</td>
+              <td className={cellStyle}>{member.joinedDate}</td>
+              <td className={cellStyle}>
                 <button onClick={() => handleDeleteOne(member.id)}>
                   <Trash2 size={16} className="text-red-500" />
                 </button>
@@ -96,7 +97,7 @@ export default function AllMembersTable() {
       <button
         onClick={handleDeleteSelected}
         disabled={selectedIds.length === 0}
-        className="bg-green-600 text-white rounded px-4 py-2 self-start disabled:opacity-50"
+        className={`${buttonStyle} disabled:opacity-50`}
       >
         Delete Selected
       </button>
