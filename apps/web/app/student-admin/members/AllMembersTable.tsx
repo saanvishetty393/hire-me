@@ -1,41 +1,59 @@
-"use client";
-import { useState } from "react";
-import { Trash2 } from "lucide-react";
+'use client'
+import { useState } from 'react'
+import { Trash2 } from 'lucide-react'
 
 type Member = {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  joinedDate: string;
-};
+  id: number
+  name: string
+  username: string
+  email: string
+  joinedDate: string
+}
 
 const initialMembers: Member[] = [
-  { id: 1, name: "Priya Nair", username: "priyan", email: "priyan@stanford.edu", joinedDate: "January 2026" },
-  { id: 2, name: "Marcus Webb", username: "mwebb22", email: "mwebb22@stanford.edu", joinedDate: "February 2026" },
-  { id: 3, name: "Sara Kim", username: "sarak", email: "sarak@stanford.edu", joinedDate: "March 2026" },
-];
+  {
+    id: 1,
+    name: 'Priya Nair',
+    username: 'priyan',
+    email: 'priyan@stanford.edu',
+    joinedDate: 'January 2026',
+  },
+  {
+    id: 2,
+    name: 'Marcus Webb',
+    username: 'mwebb22',
+    email: 'mwebb22@stanford.edu',
+    joinedDate: 'February 2026',
+  },
+  {
+    id: 3,
+    name: 'Sara Kim',
+    username: 'sarak',
+    email: 'sarak@stanford.edu',
+    joinedDate: 'March 2026',
+  },
+]
 
 export default function AllMembersTable() {
-  const [members, setMembers] = useState<Member[]>(initialMembers);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [members, setMembers] = useState<Member[]>(initialMembers)
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
 
   function toggle(id: number) {
     if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter((i) => i !== id));
+      setSelectedIds(selectedIds.filter((i) => i !== id))
     } else {
-      setSelectedIds([...selectedIds, id]);
+      setSelectedIds([...selectedIds, id])
     }
   }
 
   function handleDeleteSelected() {
-    setMembers(members.filter((m) => !selectedIds.includes(m.id)));
-    setSelectedIds([]);
+    setMembers(members.filter((m) => !selectedIds.includes(m.id)))
+    setSelectedIds([])
   }
 
   function handleDeleteOne(id: number) {
-    setMembers(members.filter((m) => m.id !== id));
-    setSelectedIds(selectedIds.filter((i) => i !== id));
+    setMembers(members.filter((m) => m.id !== id))
+    setSelectedIds(selectedIds.filter((i) => i !== id))
   }
 
   return (
@@ -83,5 +101,5 @@ export default function AllMembersTable() {
         Delete Selected
       </button>
     </div>
-  );
+  )
 }

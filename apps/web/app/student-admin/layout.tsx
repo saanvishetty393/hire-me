@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { Briefcase, FileText, Users } from "lucide-react";
+import Link from 'next/link'
+import { Briefcase, FileText, Users } from 'lucide-react'
 
 export default function StudentAdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,12 +13,15 @@ export default function StudentAdminLayout({ children }: { children: React.React
           <FileText size={18} />
           My Applications
         </Link>
-        <Link href="/student-admin/members" className="flex items-center gap-2 text-gray-700 font-semibold">
+        <Link
+          href="/student-admin/members"
+          className="flex items-center gap-2 text-gray-700 font-semibold"
+        >
           <Users size={18} />
           Members
         </Link>
       </nav>
       <main className="flex-1 p-6">{children}</main>
     </div>
-  );
+  )
 }

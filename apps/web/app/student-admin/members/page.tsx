@@ -1,12 +1,12 @@
-"use client"
+'use client'
 import AddMembers from './AddMemberForm'
 import BulkImportForm from './BulkImportForm'
 import AllMembersTable from './AllMembersTable'
-import { useState } from "react"
-import { Users, TrendingUp, Clock } from "lucide-react"
+import { useState } from 'react'
+import { Users, TrendingUp, Clock } from 'lucide-react'
 
 export default function MembersPage() {
-  const [activeTab, setActiveTab] = useState("all")
+  const [activeTab, setActiveTab] = useState('all')
 
   return (
     <div className="p-6">
@@ -38,28 +38,40 @@ export default function MembersPage() {
 
       <div className="flex gap-4 mb-4">
         <button
-          onClick={() => setActiveTab("all")}
-          className={activeTab === "all" ? "border-b-2 border-green-600 font-semibold px-4 py-2" : "px-4 py-2 text-gray-500"}
+          onClick={() => setActiveTab('all')}
+          className={
+            activeTab === 'all'
+              ? 'border-b-2 border-green-600 font-semibold px-4 py-2'
+              : 'px-4 py-2 text-gray-500'
+          }
         >
           All Members
         </button>
         <button
-          onClick={() => setActiveTab("individual")}
-          className={activeTab === "individual" ? "border-b-2 border-green-600 font-semibold px-4 py-2" : "px-4 py-2 text-gray-500"}
+          onClick={() => setActiveTab('individual')}
+          className={
+            activeTab === 'individual'
+              ? 'border-b-2 border-green-600 font-semibold px-4 py-2'
+              : 'px-4 py-2 text-gray-500'
+          }
         >
           Add Individually
         </button>
         <button
-          onClick={() => setActiveTab("bulk")}
-          className={activeTab === "bulk" ? "border-b-2 border-green-600 font-semibold px-4 py-2" : "px-4 py-2 text-gray-500"}
+          onClick={() => setActiveTab('bulk')}
+          className={
+            activeTab === 'bulk'
+              ? 'border-b-2 border-green-600 font-semibold px-4 py-2'
+              : 'px-4 py-2 text-gray-500'
+          }
         >
           Bulk Import
         </button>
       </div>
 
-      {activeTab === "all" && <AllMembersTable />}
-      {activeTab === "individual" && <AddMembers />}
-      {activeTab === "bulk" && <BulkImportForm />}
+      {activeTab === 'all' && <AllMembersTable />}
+      {activeTab === 'individual' && <AddMembers />}
+      {activeTab === 'bulk' && <BulkImportForm />}
     </div>
   )
 }
