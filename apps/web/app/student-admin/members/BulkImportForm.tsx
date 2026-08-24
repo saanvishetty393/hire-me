@@ -1,36 +1,64 @@
-'use client'
-import { useState } from 'react'
+"use client";
+import { useState } from "react";
+import { Upload } from "lucide-react";
 
 type MemberRow = {
-  name: string
-  username: string
-  email: string
-}
+  name: string;
+  username: string;
+  email: string;
+};
 
 export default function BulkImportForm() {
-  const [content, setContent] = useState('')
-  const [rows, setRows] = useState<MemberRow[]>([])
+  const [rows, setRows] = useState<MemberRow[]>([]);
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const text = await file.text()
-    const lines = text.split('\n')
-    const rows = lines.slice(1).map((line) => {
-      const [name = '', username = '', email = ''] = line.split(',')
-      return { name, username, email }
-    })
-    setContent(text)
-    setRows(rows)
+  async function processFile(file: File) {
+    const text = await file.text();
+    const lines = text.split("\n");
+    const parsedRows = lines.slice(1).map((line) => {
+      const [name = "", username = "", email = ""] = line.split(",");
+      return { name, username, email };
+    });
+    setRows(parsedRows);
   }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  }
+
+  function handleDrop(e: React.DragEvent<HTMLLabelElement>) {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLLabelElement>) {
+    e.preventDefault();
+  }
+
   function handleImport() {
-    console.log(rows)
+    console.log(rows);
   }
+
   return (
     <div className="flex flex-col gap-3 p-4">
-      <input type="file" accept=".csv" onChange={handleFileChange} />
-      <pre>{content}</pre>
+      <label
+        htmlFor="csv-upload"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded p-8 cursor-pointer text-gray-500"
+      >
+        <Upload size={24} />
+        <p>Drag and drop your CSV file here, or click to browse</p>
+        <input
+          id="csv-upload"
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </label>
+
       <table className="border-collapse border border-gray-300">
         <thead>
           <tr>
@@ -49,6 +77,7 @@ export default function BulkImportForm() {
           ))}
         </tbody>
       </table>
+
       <button
         onClick={handleImport}
         className="bg-green-600 text-white rounded px-4 py-2 self-start"
@@ -56,5 +85,5 @@ export default function BulkImportForm() {
         Import Members
       </button>
     </div>
-  )
+  );
 }
