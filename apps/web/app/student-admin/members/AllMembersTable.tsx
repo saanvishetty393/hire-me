@@ -59,7 +59,7 @@ export default function AllMembersTable() {
 
   return (
     <div className="flex flex-col gap-3 p-4">
-      <table className="border-collapse border border-gray-300">
+      <table className="border-collapse border border-border-subtle">
         <thead>
           <tr>
             <th className={cellStyle}></th>
