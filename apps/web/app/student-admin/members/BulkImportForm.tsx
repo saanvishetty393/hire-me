@@ -47,7 +47,7 @@ export default function BulkImportForm() {
         htmlFor="csv-upload"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
-        className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded p-8 cursor-pointer text-gray-500"
+        className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border-subtle rounded p-8 cursor-pointer text-text-muted"
       >
         <Upload size={24} />
         <p>Drag and drop your CSV file here, or click to browse</p>
@@ -60,7 +60,7 @@ export default function BulkImportForm() {
         />
       </label>
 
-      <table className="border-collapse border border-gray-300">
+      <table className="border-collapse border border-border-subtle">
         <thead>
           <tr>
             <th className={cellStyle}>Name</th>

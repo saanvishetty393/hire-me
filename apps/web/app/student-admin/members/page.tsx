@@ -13,24 +13,24 @@ export default function MembersPage() {
       <h1 className="text-2xl font-bold mb-6">Manage Members</h1>
 
       <div className="flex gap-4 mb-6">
-        <div className="flex items-center gap-3 border border-gray-300 rounded p-4 flex-1">
-          <Users className="text-gray-500" />
+        <div className="flex items-center gap-3 border border-border-subtle rounded p-4 flex-1">
+          <Users className="text-text-muted" />
           <div>
-            <p className="text-sm text-gray-500">Total Members</p>
+            <p className="text-sm text-text-muted">Total Members</p>
             <p className="text-xl font-semibold">128</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 border border-gray-300 rounded p-4 flex-1">
-          <TrendingUp className="text-gray-500" />
+        <div className="flex items-center gap-3 border border-border-subtle rounded p-4 flex-1">
+          <TrendingUp className="text-text-muted" />
           <div>
-            <p className="text-sm text-gray-500">Active This Week</p>
+            <p className="text-sm text-text-muted">Active This Week</p>
             <p className="text-xl font-semibold">34</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 border border-gray-300 rounded p-4 flex-1">
-          <Clock className="text-gray-500" />
+        <div className="flex items-center gap-3 border border-border-subtle rounded p-4 flex-1">
+          <Clock className="text-text-muted" />
           <div>
-            <p className="text-sm text-gray-500">Pending Invites</p>
+            <p className="text-sm text-text-muted">Pending Invites</p>
             <p className="text-xl font-semibold">5</p>
           </div>
         </div>
@@ -41,8 +41,8 @@ export default function MembersPage() {
           onClick={() => setActiveTab('all')}
           className={
             activeTab === 'all'
-              ? 'border-b-2 border-green-600 font-semibold px-4 py-2'
-              : 'px-4 py-2 text-gray-500'
+              ? 'border-b-2 border-brand font-semibold px-4 py-2'
+              : 'px-4 py-2 text-text-muted'
           }
         >
           All Members
@@ -51,8 +51,8 @@ export default function MembersPage() {
           onClick={() => setActiveTab('individual')}
           className={
             activeTab === 'individual'
-              ? 'border-b-2 border-green-600 font-semibold px-4 py-2'
-              : 'px-4 py-2 text-gray-500'
+              ? 'border-b-2 border-brand font-semibold px-4 py-2'
+              : 'px-4 py-2 text-text-muted'
           }
         >
           Add Individually
@@ -61,8 +61,8 @@ export default function MembersPage() {
           onClick={() => setActiveTab('bulk')}
           className={
             activeTab === 'bulk'
-              ? 'border-b-2 border-green-600 font-semibold px-4 py-2'
-              : 'px-4 py-2 text-gray-500'
+              ? 'border-b-2 border-brand font-semibold px-4 py-2'
+              : 'px-4 py-2 text-text-muted'
           }
         >
           Bulk Import
