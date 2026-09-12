@@ -1,106 +1,162 @@
 'use client'
-import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
-import { cellStyle, buttonStyle } from './styles'
 
-type Member = {
-  id: number
-  name: string
-  username: string
-  email: string
-  joinedDate: string
-}
+import { useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Search, Trash2 } from 'lucide-react'
 
-const initialMembers: Member[] = [
-  {
-    id: 1,
-    name: 'Priya Nair',
-    username: 'priyan',
-    email: 'priyan@stanford.edu',
-    joinedDate: 'January 2026',
-  },
-  {
-    id: 2,
-    name: 'Marcus Webb',
-    username: 'mwebb22',
-    email: 'mwebb22@stanford.edu',
-    joinedDate: 'February 2026',
-  },
-  {
-    id: 3,
-    name: 'Sara Kim',
-    username: 'sarak',
-    email: 'sarak@stanford.edu',
-    joinedDate: 'March 2026',
-  },
-]
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+
+import { deleteMembers, fetchMembers, membersQueryKey } from './members-data'
 
 export default function AllMembersTable() {
-  const [members, setMembers] = useState<Member[]>(initialMembers)
+  const queryClient = useQueryClient()
   const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [search, setSearch] = useState('')
+
+  const {
+    data: members = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: membersQueryKey,
+    queryFn: fetchMembers,
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteMembers,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: membersQueryKey })
+      setSelectedIds([])
+    },
+  })
+
+  const filteredMembers = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) return members
+    return members.filter(
+      (member) =>
+        member.name.toLowerCase().includes(query) ||
+        member.usn.toLowerCase().includes(query) ||
+        member.email.toLowerCase().includes(query),
+    )
+  }, [members, search])
+
+  const filteredIds = filteredMembers.map((m) => m.id)
+  const allSelected = filteredIds.length > 0 && filteredIds.every((id) => selectedIds.includes(id))
+  const someSelected = filteredIds.some((id) => selectedIds.includes(id))
 
   function toggle(id: number) {
-    if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter((i) => i !== id))
-    } else {
-      setSelectedIds([...selectedIds, id])
-    }
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
   }
 
-  function handleDeleteSelected() {
-    setMembers(members.filter((m) => !selectedIds.includes(m.id)))
-    setSelectedIds([])
+  function toggleAll(checked: boolean) {
+    setSelectedIds((prev) => {
+      if (checked) {
+        return Array.from(new Set([...prev, ...filteredIds]))
+      }
+      return prev.filter((id) => !filteredIds.includes(id))
+    })
   }
 
-  function handleDeleteOne(id: number) {
-    setMembers(members.filter((m) => m.id !== id))
-    setSelectedIds(selectedIds.filter((i) => i !== id))
+  if (isLoading) {
+    return <p className="p-4 text-text-muted">Loading members…</p>
+  }
+
+  if (isError) {
+    return <p className="p-4 text-red-500">Couldn&apos;t load members.</p>
   }
 
   return (
     <div className="flex flex-col gap-3 p-4">
-      <table className="border-collapse border border-border-subtle">
-        <thead>
-          <tr>
-            <th className={cellStyle}></th>
-            <th className={cellStyle}>Name</th>
-            <th className={cellStyle}>Username</th>
-            <th className={cellStyle}>Email</th>
-            <th className={cellStyle}>Joined Date</th>
-            <th className={cellStyle}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member) => (
-            <tr key={member.id}>
-              <td className={cellStyle}>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.includes(member.id)}
-                  onChange={() => toggle(member.id)}
-                />
-              </td>
-              <td className={cellStyle}>{member.name}</td>
-              <td className={cellStyle}>{member.username}</td>
-              <td className={cellStyle}>{member.email}</td>
-              <td className={cellStyle}>{member.joinedDate}</td>
-              <td className={cellStyle}>
-                <button onClick={() => handleDeleteOne(member.id)}>
-                  <Trash2 size={16} className="text-red-500" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="relative max-w-xs">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+        <Input
+          placeholder="Search by name, USN, or email"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-8"
+        />
+      </div>
 
-      <button
-        onClick={handleDeleteSelected}
-        disabled={selectedIds.length === 0}
-        className={`${buttonStyle} disabled:opacity-50`}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-10">
+              <Checkbox
+                checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                onCheckedChange={(checked) => toggleAll(Boolean(checked))}
+                aria-label="Select all members"
+              />
+            </TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>USN</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Joined Date</TableHead>
+            <TableHead className="w-10" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredMembers.map((member) => (
+            <TableRow key={member.id}>
+              <TableCell>
+                <Checkbox
+                  checked={selectedIds.includes(member.id)}
+                  onCheckedChange={() => toggle(member.id)}
+                  aria-label={`Select ${member.name}`}
+                />
+              </TableCell>
+              <TableCell>{member.name}</TableCell>
+              <TableCell>{member.usn}</TableCell>
+              <TableCell>{member.email}</TableCell>
+              <TableCell>{member.joinedDate}</TableCell>
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => deleteMutation.mutate([member.id])}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 size={16} className="text-red-500" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+          {filteredMembers.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-text-muted">
+                No members found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      {deleteMutation.isError && (
+        <p className="text-sm text-red-500">
+          {deleteMutation.error instanceof Error
+            ? deleteMutation.error.message
+            : 'Failed to delete member(s)'}
+        </p>
+      )}
+
+      <Button
+        variant="destructive"
+        onClick={() => deleteMutation.mutate(selectedIds)}
+        disabled={selectedIds.length === 0 || deleteMutation.isPending}
+        className="self-start"
       >
-        Delete Selected
-      </button>
+        {deleteMutation.isPending ? 'Deleting…' : `Delete Selected (${selectedIds.length})`}
+      </Button>
     </div>
   )
 }

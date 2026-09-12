@@ -1,24 +1,65 @@
 'use client'
-import { useState } from 'react'
-import { Upload } from 'lucide-react'
-import { cellStyle, buttonStyle } from './styles'
 
-type MemberRow = {
-  name: string
-  username: string
-  email: string
-}
+import { useState } from 'react'
+import { z } from 'zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Upload } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+
+import { importMembers, membersQueryKey } from './members-data'
+
+// ---- Schema ----
+const memberRowSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  usn: z
+    .string()
+    .min(3, 'USN must be at least 3 characters')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores allowed'),
+  email: z.string().email('Invalid email'),
+})
+
+type MemberRow = z.infer<typeof memberRowSchema> & { error?: string }
 
 export default function BulkImportForm() {
+  const queryClient = useQueryClient()
   const [rows, setRows] = useState<MemberRow[]>([])
+
+  const mutation = useMutation({
+    mutationFn: importMembers,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: membersQueryKey })
+      setRows([])
+    },
+  })
 
   async function processFile(file: File) {
     const text = await file.text()
-    const lines = text.split('\n')
-    const parsedRows = lines.slice(1).map((line) => {
-      const [name = '', username = '', email = ''] = line.split(',')
-      return { name, username, email }
+
+    // Normalize \r\n, \r, and \n line endings, and drop blank lines
+    // (including a trailing empty line at the end of the file).
+    const lines = text
+      .split(/\r\n|\r|\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+
+    const parsedRows: MemberRow[] = lines.slice(1).map((line) => {
+      const [name = '', usn = '', email = ''] = line.split(',').map((value) => value.trim())
+
+      const result = memberRowSchema.safeParse({ name, usn, email })
+      return result.success
+        ? { name, usn, email }
+        : { name, usn, email, error: result.error.issues[0]?.message }
     })
+
     setRows(parsedRows)
   }
 
@@ -37,8 +78,11 @@ export default function BulkImportForm() {
     e.preventDefault()
   }
 
+  const hasErrors = rows.some((row) => row.error)
+
   function handleImport() {
-    console.log(rows)
+    if (rows.length === 0 || hasErrors) return
+    mutation.mutate(rows.map(({ name, usn, email }) => ({ name, usn, email })))
   }
 
   return (
@@ -60,28 +104,42 @@ export default function BulkImportForm() {
         />
       </label>
 
-      <table className="border-collapse border border-border-subtle">
-        <thead>
-          <tr>
-            <th className={cellStyle}>Name</th>
-            <th className={cellStyle}>Username</th>
-            <th className={cellStyle}>Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={index}>
-              <td className={cellStyle}>{row.name}</td>
-              <td className={cellStyle}>{row.username}</td>
-              <td className={cellStyle}>{row.email}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {rows.length > 0 && (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>USN</TableHead>
+              <TableHead>Email</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row, index) => (
+              <TableRow key={index} className={row.error ? 'bg-red-50' : undefined}>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{row.usn}</TableCell>
+                <TableCell>
+                  {row.email}
+                  {row.error && <span className="block text-xs text-red-500">{row.error}</span>}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
 
-      <button onClick={handleImport} className={buttonStyle}>
-        Import Members
-      </button>
+      {mutation.isError && (
+        <p className="text-sm text-red-500">
+          {mutation.error instanceof Error ? mutation.error.message : 'Import failed'}
+        </p>
+      )}
+
+      <Button
+        onClick={handleImport}
+        disabled={rows.length === 0 || hasErrors || mutation.isPending}
+      >
+        {mutation.isPending ? 'Importing…' : `Import ${rows.length} Members`}
+      </Button>
     </div>
   )
 }
