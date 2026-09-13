@@ -20,10 +20,7 @@ import { createMember, membersQueryKey } from './members-data'
 
 // ---- Schema ----
 export const memberSchema = z.object({
-  fullName: z
-    .string()
-    .trim()
-    .min(1, 'Full name is required'),
+  fullName: z.string().trim().min(1, 'Full name is required'),
   usn: z
     .string()
     .trim()

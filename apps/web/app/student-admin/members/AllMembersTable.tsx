@@ -44,12 +44,12 @@ export default function AllMembersTable() {
   })
 
   const deleteMutation = useMutation({
-  mutationFn: deleteMembers,
-  onSuccess: (_data, deletedIds) => {
-    queryClient.invalidateQueries({ queryKey: membersQueryKey })
-    setSelectedIds((prev) => prev.filter((id) => !deletedIds.includes(id)))
-  },
-})
+    mutationFn: deleteMembers,
+    onSuccess: (_data, deletedIds) => {
+      queryClient.invalidateQueries({ queryKey: membersQueryKey })
+      setSelectedIds((prev) => prev.filter((id) => !deletedIds.includes(id)))
+    },
+  })
 
   const filteredMembers = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -58,7 +58,7 @@ export default function AllMembersTable() {
       (member) =>
         member.name.toLowerCase().includes(query) ||
         member.usn.toLowerCase().includes(query) ||
-        member.email.toLowerCase().includes(query)
+        member.email.toLowerCase().includes(query),
     )
   }, [members, search])
 
@@ -67,9 +67,7 @@ export default function AllMembersTable() {
   const someSelected = filteredIds.some((id) => selectedIds.includes(id))
 
   function toggle(id: number) {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    )
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
   }
 
   function toggleAll(checked: boolean) {
@@ -191,8 +189,8 @@ export default function AllMembersTable() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently remove{' '}
-              {pendingDeleteIds && pendingDeleteIds.length === 1 ? 'this member' : 'these members'} from
-              the roster.
+              {pendingDeleteIds && pendingDeleteIds.length === 1 ? 'this member' : 'these members'}{' '}
+              from the roster.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
