@@ -4,6 +4,16 @@ import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Search, Trash2 } from 'lucide-react'
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -22,6 +32,7 @@ export default function AllMembersTable() {
   const queryClient = useQueryClient()
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [search, setSearch] = useState('')
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<number[] | null>(null)
 
   const {
     data: members = [],
@@ -33,12 +44,12 @@ export default function AllMembersTable() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: deleteMembers,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: membersQueryKey })
-      setSelectedIds([])
-    },
-  })
+  mutationFn: deleteMembers,
+  onSuccess: (_data, deletedIds) => {
+    queryClient.invalidateQueries({ queryKey: membersQueryKey })
+    setSelectedIds((prev) => prev.filter((id) => !deletedIds.includes(id)))
+  },
+})
 
   const filteredMembers = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -47,7 +58,7 @@ export default function AllMembersTable() {
       (member) =>
         member.name.toLowerCase().includes(query) ||
         member.usn.toLowerCase().includes(query) ||
-        member.email.toLowerCase().includes(query),
+        member.email.toLowerCase().includes(query)
     )
   }, [members, search])
 
@@ -56,7 +67,9 @@ export default function AllMembersTable() {
   const someSelected = filteredIds.some((id) => selectedIds.includes(id))
 
   function toggle(id: number) {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    )
   }
 
   function toggleAll(checked: boolean) {
@@ -66,6 +79,13 @@ export default function AllMembersTable() {
       }
       return prev.filter((id) => !filteredIds.includes(id))
     })
+  }
+
+  function confirmDelete() {
+    if (pendingDeleteIds && pendingDeleteIds.length > 0) {
+      deleteMutation.mutate(pendingDeleteIds)
+    }
+    setPendingDeleteIds(null)
   }
 
   if (isLoading) {
@@ -123,7 +143,7 @@ export default function AllMembersTable() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => deleteMutation.mutate([member.id])}
+                  onClick={() => setPendingDeleteIds([member.id])}
                   disabled={deleteMutation.isPending}
                 >
                   <Trash2 size={16} className="text-red-500" />
@@ -151,12 +171,36 @@ export default function AllMembersTable() {
 
       <Button
         variant="destructive"
-        onClick={() => deleteMutation.mutate(selectedIds)}
+        onClick={() => setPendingDeleteIds(selectedIds)}
         disabled={selectedIds.length === 0 || deleteMutation.isPending}
         className="self-start"
       >
         {deleteMutation.isPending ? 'Deleting…' : `Delete Selected (${selectedIds.length})`}
       </Button>
+
+      <AlertDialog
+        open={pendingDeleteIds !== null}
+        onOpenChange={(open) => !open && setPendingDeleteIds(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingDeleteIds && pendingDeleteIds.length === 1
+                ? 'Delete this member?'
+                : `Delete ${pendingDeleteIds?.length ?? 0} members?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently remove{' '}
+              {pendingDeleteIds && pendingDeleteIds.length === 1 ? 'this member' : 'these members'} from
+              the roster.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

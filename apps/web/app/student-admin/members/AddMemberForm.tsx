@@ -20,12 +20,17 @@ import { createMember, membersQueryKey } from './members-data'
 
 // ---- Schema ----
 export const memberSchema = z.object({
-  fullName: z.string().min(1, 'Full name is required'),
+  fullName: z
+    .string()
+    .trim()
+    .min(1, 'Full name is required'),
   usn: z
     .string()
+    .trim()
     .min(3, 'USN must be at least 3 characters')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores allowed'),
-  email: z.string().email('Enter a valid email address'),
+    .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores allowed')
+    .transform((value) => value.toUpperCase()),
+  email: z.string().trim().email('Enter a valid email address'),
 })
 
 export type MemberFormValues = z.infer<typeof memberSchema>
